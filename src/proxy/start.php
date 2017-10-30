@@ -19,9 +19,10 @@ namespace proxy {
 
     $config = new Config($directory . "proxy-config.json", Config::JSON, [
         'server' => 'example.com',
-        'port' => 19132
+        'port' => 19132,
+        'bind-port' => 19132
     ]);
     $conf = $config->getAll();
 
-    new Proxy($conf['server'], $conf['port']);
+    new Proxy($conf['server'], $conf['port'], $conf['bind-port']);
 }

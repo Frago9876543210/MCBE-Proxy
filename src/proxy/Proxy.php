@@ -34,16 +34,17 @@ class Proxy
      * Proxy constructor.
      * @param string $serverHost
      * @param int    $serverPort
+     * @param int    $bindPort
      */
-    public function __construct(string $serverHost, int $serverPort = 19132)
+    public function __construct(string $serverHost, int $serverPort = 19132, int $bindPort = 19132)
     {
         $this->socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-        if (@socket_bind($this->socket, "0.0.0.0", 19132) === true) {
+        if (@socket_bind($this->socket, "0.0.0.0", $bindPort) === true) {
             socket_set_option($this->socket, SOL_SOCKET, SO_SNDBUF, 1024 * 1024 * 8);
             socket_set_option($this->socket, SOL_SOCKET, SO_RCVBUF, 1024 * 1024 * 8);
         } else {
-            echo "**** FAILED TO BIND TO " . "0.0.0.0" . ":" . 19132 . "!" . PHP_EOL;
-            echo "Perhaps a server is already running on that port?" . PHP_EOL;
+            echo "\e[38;5;203m**** FAILED TO BIND TO " . "0.0.0.0" . ":" . $bindPort . "!" . PHP_EOL;
+            echo "Perhaps a somewhere is already running on that port?\e[m" . PHP_EOL;
             exit(1);
         }
         socket_set_nonblock($this->socket);
