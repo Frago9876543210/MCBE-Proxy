@@ -1,0 +1,4 @@
+bin/*
+.idea/*
+proxy-config.json
+vendor

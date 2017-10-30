@@ -1,0 +1,42 @@
+{
+  "name": "Frago9876543210/MCPE-Proxy",
+  "description": "",
+  "type": "project",
+  "homepage": "https://github.com/Frago9876543210/MCPE-Proxy",
+  "license": "GPL-3.0",
+  "require": {
+    "php": ">=7.2",
+    "ext-bcmath": "*",
+    "ext-curl": "*",
+    "ext-hash": "*",
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "ext-openssl": "*",
+    "ext-pcre": "*",
+    "ext-phar": "*",
+    "ext-pthreads": ">=3.1.7dev",
+    "ext-reflection": "*",
+    "ext-sockets": "*",
+    "ext-spl": "*",
+    "ext-yaml": ">=2.0.0",
+    "ext-zip": "*",
+    "ext-zlib": ">=1.2.11"
+  },
+  "autoload": {
+    "exclude-from-classmap": [
+      "src/pocketmine/src/spl/stubs"
+    ],
+    "psr-0": {
+      "": [
+        "src/pocketmine/src",
+        "src/pocketmine/src/spl"
+      ]
+    },
+    "psr-4": {
+      "proxy\\": "src/proxy/",
+      "raklib\\": "src/pocketmine/src/raklib/",
+      "spl\\": "src/pocketmine/src/spl",
+      "pocketmine\\": "src/pocketmine/src/pocketmine"
+    }
+  }
+}
