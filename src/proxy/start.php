@@ -17,6 +17,8 @@ namespace proxy {
 
     $directory = getcwd() . DIRECTORY_SEPARATOR;
 
+    @mkdir($directory . "plugins");
+
     $config = new Config($directory . "proxy-config.json", Config::JSON, [
         'server' => 'example.com',
         'port' => 19132,
@@ -24,5 +26,5 @@ namespace proxy {
     ]);
     $conf = $config->getAll();
 
-    new Proxy($conf['server'], $conf['port'], $conf['bind-port']);
+    new Proxy($conf['server'], $conf['port'], $conf['bind-port'], $directory);
 }

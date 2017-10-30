@@ -10,6 +10,7 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\UpdateAttributesPacket;
 use pocketmine\utils\TextFormat;
+use proxy\plugin\ProxyPluginBase;
 use raklib\protocol\DATA_PACKET_4;
 use raklib\protocol\EncapsulatedPacket;
 use raklib\protocol\OpenConnectionRequest1;
@@ -19,25 +20,32 @@ use raklib\RakLib;
 
 class Proxy
 {
+    /** @var Proxy */
+    public static $instance = null;
     /** @var  string */
-    protected $serverHost;
+    public $serverHost;
     /** @var  int */
-    protected $serverPort;
+    public $serverPort;
     /** @var  string */
-    protected $clientHost;
+    public $clientHost;
     /** @var  int */
-    protected $clientPort;
+    public $clientPort;
     /** @var resource */
     private $socket;
+    /** @var  ProxyPluginBase */
+    private $plugins;
 
     /**
      * Proxy constructor.
      * @param string $serverHost
      * @param int    $serverPort
      * @param int    $bindPort
+     * @param string $directory
      */
-    public function __construct(string $serverHost, int $serverPort = 19132, int $bindPort = 19132)
+    public function __construct(string $serverHost, int $serverPort = 19132, int $bindPort = 19132, string $directory)
     {
+        self::$instance = $this;
+
         $this->socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
         if (@socket_bind($this->socket, "0.0.0.0", $bindPort) === true) {
             socket_set_option($this->socket, SOL_SOCKET, SO_SNDBUF, 1024 * 1024 * 8);
@@ -55,7 +63,7 @@ class Proxy
         socket_set_option($this->socket, SOL_SOCKET, SO_SNDBUF, 1024 * 1024 * 8);
         socket_set_option($this->socket, SOL_SOCKET, SO_RCVBUF, 1024 * 1024 * 8);
 
-        echo "
+        echo str_repeat("-", 54) . PHP_EOL . "
         \e[38;5;87m _____                     
         \e[38;5;87m|  __ \                    
         \e[38;5;87m| |__) | __ _____  ___   _ 
@@ -64,7 +72,7 @@ class Proxy
         \e[38;5;87m|_|   |_|  \___/_/\_\ __, |
         \e[38;5;87m                      __/ |
         \e[38;5;87m                     |___/ 
-		\e[m" . PHP_EOL;
+        \n\e[38;5;83mgithub.com/Frago9876543210/MCPE-Proxy\e[m\n\n" . str_repeat("-", 54) . PHP_EOL;
 
         echo "\e[38;5;227mWaiting for ping from the client...\e[m" . PHP_EOL;
         while (true) {
@@ -103,6 +111,24 @@ class Proxy
             }
         }
 
+        foreach (glob($directory . "plugins" . DIRECTORY_SEPARATOR . "*") as $path) {
+            if (is_dir($path)) {
+                if (file_exists($path . DIRECTORY_SEPARATOR . "plugin.json")) {
+                    $data = json_decode(file_get_contents($path . DIRECTORY_SEPARATOR . "plugin.json"), true);
+                    if (isset($data['main']) && isset($data['loader'])) {
+                        $main = $data['main'];
+                        $loader = $data['loader'];
+                        /** @noinspection PhpIncludeInspection */
+                        require_once $path . DIRECTORY_SEPARATOR . $loader;
+                        /** @var ProxyPluginBase $plugin */
+                        $plugin = new $main();
+                        $this->plugins[] = $plugin;
+                        $plugin->onInit($this);
+                    }
+                }
+            }
+        }
+
         $this->Listen();
     }
 
@@ -115,13 +141,40 @@ class Proxy
             $status = @socket_recvfrom($this->socket, $buffer, 65535, 0, $source, $port);
             if ($status !== false) {
                 if ($source === $this->serverHost and $port === $this->serverPort) {
+                    foreach ($this->plugins as $plugin) {
+                        if ($plugin instanceof ProxyPluginBase) {
+                            if (!$plugin->onRakNetPacketFromServer($buffer)) {
+                                continue;
+                            }
+                        }
+                    }
                     if (($pk = $this->readDataPacket($buffer)) !== null) {
-                        echo "\e[38;5;63mSERVER > " . get_class($pk) . "\e[m" . PHP_EOL;
+                        foreach ($this->plugins as $plugin) {
+                            if ($plugin instanceof ProxyPluginBase) {
+                                if (!$plugin->onDataPacketFromServer($pk)) {
+                                    continue;
+                                }
+                            }
+                        }
                     }
                     socket_sendto($this->socket, $buffer, strlen($buffer), 0, $this->clientHost, $this->clientPort);
                 } elseif ($source === $this->clientHost and $port === $this->clientPort) {
+                    foreach ($this->plugins as $plugin) {
+                        if ($plugin instanceof ProxyPluginBase) {
+                            if (!$plugin->onRakNetPacketFromClient($buffer)) {
+                                continue;
+                            }
+                        }
+                    }
                     if (($pk = $this->readDataPacket($buffer)) !== null) {
-                        echo "\e[38;5;203mCLIENT > " . get_class($pk) . "\e[m" . PHP_EOL;
+                        foreach ($this->plugins as $plugin) {
+                            if ($plugin instanceof ProxyPluginBase) {
+                                //NOTE: but client send this packet again
+                                if (!$plugin->onDataPacketFromClient($pk)) {
+                                    continue;
+                                }
+                            }
+                        }
                     }
                     socket_sendto($this->socket, $buffer, strlen($buffer), 0, $this->serverHost, $this->serverPort);
                 } else {
@@ -136,7 +189,7 @@ class Proxy
      * @param string $buffer
      * @return null|DataPacket
      */
-    protected function readDataPacket(string $buffer): ?DataPacket
+    public function readDataPacket(string $buffer): ?DataPacket
     {
         if (($packet = Pool::getPacketFromPool(ord($buffer{0}))) !== null) {
             $packet->buffer = $buffer;
@@ -168,12 +221,20 @@ class Proxy
     }
 
     /**
+     * @return Proxy
+     */
+    public static function getInstance(): Proxy
+    {
+        return self::$instance;
+    }
+
+    /**
      * This function can send a packet to the server or client
      * @param DataPacket $packet
      * @param string     $host
      * @param int        $port
      */
-    protected function writeDataPacket(DataPacket $packet, string $host, int $port): void
+    public function writeDataPacket(DataPacket $packet, string $host, int $port): void
     {
         $batch = new BatchPacket;
         $batch->addPacket($packet);
@@ -190,5 +251,13 @@ class Proxy
         $dataPacket->encode();
 
         socket_sendto($this->socket, $dataPacket->buffer, strlen($dataPacket->buffer), 0, $host, $port);
+    }
+
+    /**
+     * @return resource
+     */
+    public function getSocket()
+    {
+        return $this->socket;
     }
 }
