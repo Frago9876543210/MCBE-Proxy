@@ -19,8 +19,6 @@ use raklib\RakLib;
 
 class Proxy
 {
-    /** @var resource */
-    private $socket;
     /** @var  string */
     protected $serverHost;
     /** @var  int */
@@ -29,6 +27,8 @@ class Proxy
     protected $clientHost;
     /** @var  int */
     protected $clientPort;
+    /** @var resource */
+    private $socket;
 
     /**
      * Proxy constructor.
@@ -82,8 +82,8 @@ class Proxy
         echo "\e[38;5;227mWaiting for a response from the server...\e[m" . PHP_EOL;
         $pong = "";
         while (true) {
-            socket_recvfrom($this->socket, $buffer, 65535, 0, $h, $p);
-            if ($h === $this->serverHost and $this->serverPort === $h and ord($pong{0}) === UnconnectedPong::$ID) {
+            $len = socket_recvfrom($this->socket, $pong, 65535, 0, $h, $p);
+            if ($len !== false and $h === $this->serverHost and $this->serverPort === $p and ord($pong{0}) === UnconnectedPong::$ID) {
                 echo "\e[38;5;83mReceived response from server!\e[m" . PHP_EOL;
                 $info = explode(";", substr($pong, 35));
                 echo "\e[38;5;87m\tMOTD: " . TextFormat::toANSI($info[1]) . PHP_EOL;
