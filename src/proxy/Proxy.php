@@ -42,8 +42,8 @@ class Proxy
             socket_set_option($this->socket, SOL_SOCKET, SO_SNDBUF, 1024 * 1024 * 8);
             socket_set_option($this->socket, SOL_SOCKET, SO_RCVBUF, 1024 * 1024 * 8);
         } else {
-            echo("**** FAILED TO BIND TO " . "0.0.0.0" . ":" . 19132 . "!");
-            echo("Perhaps a server is already running on that port?");
+            echo "**** FAILED TO BIND TO " . "0.0.0.0" . ":" . 19132 . "!" . PHP_EOL;
+            echo "Perhaps a server is already running on that port?" . PHP_EOL;
             exit(1);
         }
         socket_set_nonblock($this->socket);
