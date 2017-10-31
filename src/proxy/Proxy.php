@@ -8,7 +8,7 @@ namespace proxy;
 use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PacketPool;
-use pocketmine\network\mcpe\protocol\UpdateAttributesPacket;
+use pocketmine\network\mcpe\protocol\ProtocolInfo as I;
 use pocketmine\utils\TextFormat;
 use proxy\plugin\ProxyPluginBase;
 use raklib\protocol\DATA_PACKET_4;
@@ -32,8 +32,10 @@ class Proxy
     public $clientPort;
     /** @var resource */
     private $socket;
-    /** @var  ProxyPluginBase */
+    /** @var  ProxyPluginBase[] */
     private $plugins;
+    /** @var int */
+    private $seqNumber = 0;
 
     /**
      * Proxy constructor.
@@ -142,37 +144,29 @@ class Proxy
             if ($status !== false) {
                 if ($source === $this->serverHost and $port === $this->serverPort) {
                     foreach ($this->plugins as $plugin) {
-                        if ($plugin instanceof ProxyPluginBase) {
-                            if (!$plugin->onRakNetPacketFromServer($buffer)) {
-                                continue;
-                            }
+                        if (!$plugin->onRakNetPacketFromServer($buffer)) {
+                            continue;
                         }
                     }
                     if (($pk = $this->readDataPacket($buffer)) !== null) {
                         foreach ($this->plugins as $plugin) {
-                            if ($plugin instanceof ProxyPluginBase) {
-                                if (!$plugin->onDataPacketFromServer($pk)) {
-                                    continue;
-                                }
+                            if (!$plugin->onDataPacketFromServer($pk)) {
+                                continue;
                             }
                         }
                     }
                     socket_sendto($this->socket, $buffer, strlen($buffer), 0, $this->clientHost, $this->clientPort);
                 } elseif ($source === $this->clientHost and $port === $this->clientPort) {
                     foreach ($this->plugins as $plugin) {
-                        if ($plugin instanceof ProxyPluginBase) {
-                            if (!$plugin->onRakNetPacketFromClient($buffer)) {
-                                continue;
-                            }
+                        if (!$plugin->onRakNetPacketFromClient($buffer)) {
+                            continue;
                         }
                     }
                     if (($pk = $this->readDataPacket($buffer)) !== null) {
                         foreach ($this->plugins as $plugin) {
-                            if ($plugin instanceof ProxyPluginBase) {
-                                //NOTE: but client send this packet again
-                                if (!$plugin->onDataPacketFromClient($pk)) {
-                                    continue;
-                                }
+                            //NOTE: but client send this packet again
+                            if (!$plugin->onDataPacketFromClient($pk)) {
+                                continue;
                             }
                         }
                     }
@@ -205,7 +199,11 @@ class Proxy
                                     $stole = PacketPool::getPacketById(ord($buf{0}));
                                     //Now there are a lot of forks, then some packages can be decrypted wrongly and this will cause an error.
                                     //Here you can disable some packages if they cause an errors
-                                    if (!$stole instanceof UpdateAttributesPacket) {
+                                    $disabled = [
+                                        I::AVAILABLE_COMMANDS_PACKET,
+                                        I::UPDATE_ATTRIBUTES_PACKET
+                                    ];
+                                    if (!in_array($stole::NETWORK_ID, $disabled)) {
                                         $stole->buffer = $buf;
                                         $stole->decode();
                                         return $stole;
@@ -246,7 +244,7 @@ class Proxy
         $encapsulated->buffer = $batch->buffer;
 
         $dataPacket = new DATA_PACKET_4;
-        $dataPacket->seqNumber = 666;
+        $dataPacket->seqNumber = 666; //todo: fix seq
         $dataPacket->packets = [$encapsulated];
         $dataPacket->encode();
 
