@@ -1,7 +1,7 @@
 git submodule init
 git submodule update
 cd src/pocketmine/
-git checkout master
+git checkout aa399a1109d2213e5df84c5390deeda0746c2717
 git submodule init
 git submodule update
 cd ..
