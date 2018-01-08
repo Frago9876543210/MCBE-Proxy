@@ -14,6 +14,9 @@ use raklib\protocol\{
 };
 
 class Packet{
+	/** @var int $number */
+	public static $number = 0;
+
 	/**
 	 * @param string $buffer
 	 * @return null|DataPacket
@@ -23,6 +26,7 @@ class Packet{
 			$dataPacket = new Datagram;
 			$dataPacket->buffer = $buffer;
 			$dataPacket->decode();
+			self::$number = $dataPacket->seqNumber + 1;
 			foreach($dataPacket->packets as $encapsulatedPacket){
 				/** @var BatchPacket $batch */
 				if(($batch = PacketPool::getPacket($encapsulatedPacket->buffer)) instanceof BatchPacket){
@@ -52,7 +56,7 @@ class Packet{
 		$encapsulated->reliability = 0;
 		$encapsulated->buffer = $batch->buffer;
 		$dataPacket = new Datagram;
-		$dataPacket->seqNumber = 666;
+		$dataPacket->seqNumber = self::$number++;
 		$dataPacket->packets = [$encapsulated];
 		$dataPacket->encode();
 		$baseHost->writePacket($dataPacket->buffer);
