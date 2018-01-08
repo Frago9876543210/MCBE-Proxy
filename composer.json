@@ -1,0 +1,49 @@
+{
+  "name": "Frago9876543210/MCPE-Proxy",
+  "description": "Proxy for a Minecraft PE. It allows you to intercept packets and send packets.",
+  "type": "project",
+  "homepage": "https://github.com/Frago9876543210/MCPE-Proxy",
+  "license": "GPL-3.0",
+  "require": {
+	"php": ">=7.2.0RC3",
+	"ext-bcmath": "*",
+	"ext-curl": "*",
+	"ext-hash": "*",
+	"ext-json": "*",
+	"ext-mbstring": "*",
+	"ext-openssl": "*",
+	"ext-pcre": "*",
+	"ext-phar": "*",
+	"ext-pthreads": ">=3.1.7dev",
+	"ext-reflection": "*",
+	"ext-sockets": "*",
+	"ext-spl": "*",
+	"ext-yaml": ">=2.0.0",
+	"ext-zip": "*",
+	"ext-zlib": ">=1.2.11",
+	"pmmp/raklib": "dev-master#29ab14d5d8640a8ee359ce315b083a129e72db4a",
+	"pmmp/pocketmine-spl": "^0.1.0",
+	"pmmp/pocketmine-mp": "dev-master"
+  },
+  "autoload": {
+	"psr-0": {
+	  "": [
+		"src"
+	  ]
+	}
+  },
+  "repositories": [
+	{
+	  "type": "vcs",
+	  "url": "https://github.com/pmmp/RakLib"
+	},
+	{
+	  "type": "vcs",
+	  "url": "https://github.com/pmmp/PocketMine-SPL"
+	},
+	{
+	  "type": "vcs",
+	  "url": "https://github.com/pmmp/PocketMine-MP"
+	}
+  ]
+}
