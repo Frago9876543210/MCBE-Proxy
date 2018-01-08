@@ -1,1 +1,0 @@
-bin/php7/bin/php src/proxy/start.php
