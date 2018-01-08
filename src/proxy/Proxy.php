@@ -19,13 +19,13 @@ use raklib\protocol\{
 };
 
 class Proxy{
-	/** @var resource */
+	/** @var resource $socket */
 	private $socket;
-	/** @var Server */
+	/** @var Server $server */
 	private $server;
-	/** @var Client */
+	/** @var Client $client */
 	private $client;
-	/** @var Plugin[] */
+	/** @var Plugin[] $plugins */
 	private $plugins = [];
 
 	public function __construct(string $serverAddress, int $serverPort = 19132, string $interface = "0.0.0.0", int $bindPort = 19132, $withoutPlugins = false){
@@ -59,6 +59,7 @@ class Proxy{
 							$this->sendToServer($buffer);
 							break;
 						case UnconnectedPong::$ID:
+							$this->server->data = explode(";", substr($buffer, 40));
 							$this->sendToClient($buffer);
 							break;
 						case OpenConnectionRequest1::$ID:
