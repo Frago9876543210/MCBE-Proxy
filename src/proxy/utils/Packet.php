@@ -26,7 +26,7 @@ class Packet{
 			$dataPacket = new Datagram;
 			$dataPacket->buffer = $buffer;
 			$dataPacket->decode();
-			self::$number = $dataPacket->seqNumber + 1;
+			self::$number = $dataPacket->seqNumber;
 			foreach($dataPacket->packets as $encapsulatedPacket){
 				/** @var BatchPacket $batch */
 				if(($batch = PacketPool::getPacket($encapsulatedPacket->buffer)) instanceof BatchPacket){
