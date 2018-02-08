@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "07260c907e2dd2a91ed7252e064a9154",
+    "content-hash": "fa34af11b296978dc0aab7f4cbb54e1d",
     "packages": [
         {
             "name": "pocketmine/pocketmine-binaryutils",
@@ -38,6 +38,61 @@
                 "issues": "https://github.com/pmmp/PocketMine-BinaryUtils/issues"
             },
             "time": "2018-01-14T18:53:25+00:00"
+        },
+        {
+            "name": "pocketmine/pocketmine-mp",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pmmp/PocketMine-MP.git",
+                "reference": "63fa6a36a974fbc2bdb7ee6687a4bbe5002f1cee"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pmmp/PocketMine-MP/zipball/63fa6a36a974fbc2bdb7ee6687a4bbe5002f1cee",
+                "reference": "63fa6a36a974fbc2bdb7ee6687a4bbe5002f1cee",
+                "shasum": ""
+            },
+            "require": {
+                "ext-bcmath": "*",
+                "ext-curl": "*",
+                "ext-hash": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "ext-openssl": "*",
+                "ext-pcre": "*",
+                "ext-phar": "*",
+                "ext-pthreads": ">=3.1.7dev",
+                "ext-reflection": "*",
+                "ext-sockets": "*",
+                "ext-spl": "*",
+                "ext-yaml": ">=2.0.0",
+                "ext-zip": "*",
+                "ext-zlib": ">=1.2.11",
+                "php": ">=7.2.0RC3",
+                "pocketmine/pocketmine-binaryutils": "dev-master#a7cd5303a3b215d26bf9be76682ce9311f40e887",
+                "pocketmine/pocketmine-nbt": "dev-master#9bd51874c315fd7f3ebf81e3c09f1993ea9b7954",
+                "pocketmine/pocketmine-spl": "^0.2.0",
+                "pocketmine/raklib": "dev-master#9b50878021ca545684fc1fd2d9333911ab2988e1"
+            },
+            "type": "project",
+            "autoload": {
+                "psr-0": {
+                    "": [
+                        "src"
+                    ]
+                }
+            },
+            "license": [
+                "LGPL-3.0"
+            ],
+            "description": "A server software for Minecraft: Pocket Edition written in PHP",
+            "homepage": "https://pmmp.io",
+            "support": {
+                "source": "https://github.com/pmmp/PocketMine-MP/tree/master",
+                "issues": "https://github.com/pmmp/PocketMine-MP/issues"
+            },
+            "time": "2018-02-08T12:09:29+00:00"
         },
         {
             "name": "pocketmine/pocketmine-nbt",
@@ -150,6 +205,7 @@
     "stability-flags": {
         "php": 5,
         "ext-pthreads": 20,
+        "pocketmine/pocketmine-mp": 20,
         "pocketmine/raklib": 20,
         "pocketmine/pocketmine-binaryutils": 20,
         "pocketmine/pocketmine-nbt": 20
