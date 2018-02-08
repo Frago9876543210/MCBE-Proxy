@@ -1,4 +1,4 @@
-# MCPE-Proxy
+# MCBE-Proxy
 Simple proxy for Minecraft Bedrock Edition.
 ## How to install?
 - Download PHP binary for you OS.
