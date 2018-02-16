@@ -47,30 +47,17 @@ class Client extends BaseHost{
 		}
 	}
 
-	public function sendMessage(string $message) : void{
-        $pk = new TextPacket();
-        $pk->type = TextPacket::TYPE_RAW;
-        $pk->message = $message;
-        $this->dataPacket($pk);
-    }
+	public function sendMessage(string $message, int $type = TextPacket::TYPE_RAW) : void{
+		$pk = new TextPacket;
+		$pk->type = $type;
+		$pk->message = $message;
+		$pk->source = "";
+		$this->dataPacket($pk);
+	}
 
-    public function sendTip(string $message): void{
-        $pk = new TextPacket();
-        $pk->type = TextPacket::TYPE_TIP;
-        $pk->message = $message;
-        $this->dataPacket($pk);
-    }
-
-    public function sendPopup(string $message) : void{
-        $pk = new TextPacket();
-        $pk->type = TextPacket::TYPE_POPUP;
-        $pk->message = $message;
-        $this->dataPacket($pk);
-    }
-
-    public function setGamemode(int $gamemode) : void{
-        $pk = new SetPlayerGameTypePacket();
-        $pk->gamemode = $gamemode;
-        $this->dataPacket($pk);
-    }
+	public function setGamemode(int $gamemode) : void{
+		$pk = new SetPlayerGameTypePacket;
+		$pk->gamemode = $gamemode;
+		$this->dataPacket($pk);
+	}
 }
