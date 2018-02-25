@@ -10,10 +10,11 @@ use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\SetPlayerGameTypePacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
 use proxy\Proxy;
+use proxy\utils\Address;
 
 class Client extends BaseHost{
 	/** @var bool $connected */
-	public $connected;
+	public $connected = false;
 	/** @var Vector3 $position */
 	public $position;
 	/** @var float $yaw */
@@ -23,16 +24,8 @@ class Client extends BaseHost{
 	/** @var int $gamemode */
 	public $gamemode;
 
-	/**
-	 * Client constructor.
-	 * @param Proxy       $proxy
-	 * @param null|string $address
-	 * @param null|int    $port
-	 * @param bool        $connected
-	 */
-	public function __construct(Proxy $proxy, $address, $port, bool $connected){
-		parent::__construct($proxy, $address, $port);
-		$this->connected = $connected;
+	public function __construct(Proxy $proxy, ?Address $address){
+		parent::__construct($proxy, $address);
 	}
 
 	/**

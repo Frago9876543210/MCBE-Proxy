@@ -16,7 +16,7 @@ use raklib\server\Session;
 
 class Packet{
 	/** @var int $number */
-	public static $number = 0;
+	private static $number = 0;
 	/** @var Datagram[][] */
 	private static $splitPackets = [];
 

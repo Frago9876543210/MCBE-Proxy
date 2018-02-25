@@ -9,10 +9,10 @@ use pocketmine\{
 	network\mcpe\protocol\PacketPool, utils\Terminal
 };
 use proxy\{
-	plugin\Plugin, utils\Log, utils\Packet
+	plugin\Plugin, utils\Address, utils\Log, utils\Packet
 };
 use proxy\hosts\{
-	Client, Server
+	BaseHost, Client, Server
 };
 use raklib\protocol\{
 	OpenConnectionRequest1, UnconnectedPing, UnconnectedPong
@@ -36,8 +36,9 @@ class Proxy{
 			Log::Warn("The proxy port is different from the server port. If there is a port check on the server, then you can not join it.");
 		}
 
-		$this->server = new Server($this, $serverAddress, $serverPort);
-		$this->client = new Client($this, null, null, false);
+		$this->server = new Server($this, new Address($serverAddress, $serverPort));
+		$this->client = new Client($this, null);
+
 		$this->socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
 		if(!socket_bind($this->socket, $interface, $bindPort)){
 			Log::Error("Failed to bind to $interface:$bindPort");
@@ -51,11 +52,11 @@ class Proxy{
 
 		while(true){
 			if(@socket_recvfrom($this->socket, $buffer, 65535, 0, $address, $port) !== false){
+				$internetAddress = new Address($address, $port);
 				if(!$this->client->connected){
 					switch(ord($buffer{0})){
 						case UnconnectedPing::$ID:
-							$this->client->setAddress($address);
-							$this->client->setPort($port);
+							$this->client->address = $internetAddress;
 							$this->sendToServer($buffer);
 							break;
 						case UnconnectedPong::$ID:
@@ -63,34 +64,30 @@ class Proxy{
 							$this->sendToClient($buffer);
 							break;
 						case OpenConnectionRequest1::$ID:
-							$this->client->setAddress($address);
-							$this->client->setPort($port);
+							$this->client->address = $internetAddress;
 							$this->client->connected = true;
 							$this->sendToServer($buffer);
 							break;
 					}
 				}else{
-					if($this->server->equals($address, $port)){
-						if(($packet = Packet::readDataPacket($buffer)) !== null){
-							$this->server->handleDataPacket($packet);
-							if(!empty($this->plugins)){
-								foreach($this->plugins as $plugin){
-									$plugin->handleServerDataPacket($packet);
-								}
-							}
-						}
+					if($this->server->address->equals($internetAddress)){
 						$this->sendToClient($buffer);
-					}elseif($this->client->equals($address, $port)){
-						if(($packet = Packet::readDataPacket($buffer)) !== null){
-							$this->client->handleDataPacket($packet);
-							if(!empty($this->plugins)){
-								foreach($this->plugins as $plugin){
-									$plugin->handleClientDataPacket($packet);
-								}
-							}
-						}
+						$this->decodeBuffer($buffer, $this->server);
+					}else{
 						$this->sendToServer($buffer);
+						$this->decodeBuffer($buffer, $this->client);
 					}
+				}
+			}
+		}
+	}
+
+	private function decodeBuffer(string $buffer, BaseHost $host){
+		if(($packet = Packet::readDataPacket($buffer)) !== null){
+			$host->handleDataPacket($packet);
+			if(!empty($this->plugins)){
+				foreach($this->plugins as $plugin){
+					$host instanceof Client ? $plugin->handleClientDataPacket($packet) : $plugin->handleServerDataPacket($packet);
 				}
 			}
 		}
