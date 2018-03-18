@@ -26,19 +26,14 @@ abstract class Plugin{
 	abstract public function onEnable() : void;
 
 	/**
-	 * @return Proxy
+	 * @param DataPacket $packet
+	 * @return bool
 	 */
-	public function getProxy() : Proxy{
-		return $this->proxy;
-	}
+	abstract public function handleServerDataPacket(DataPacket $packet) : bool;
 
 	/**
 	 * @param DataPacket $packet
+	 * @return bool
 	 */
-	abstract public function handleServerDataPacket(DataPacket $packet) : void;
-
-	/**
-	 * @param DataPacket $packet
-	 */
-	abstract public function handleClientDataPacket(DataPacket $packet) : void;
+	abstract public function handleClientDataPacket(DataPacket $packet) : bool;
 }

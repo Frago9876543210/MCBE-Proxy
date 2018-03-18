@@ -6,6 +6,7 @@ namespace Frago9876543210\Example;
 
 
 use pocketmine\network\mcpe\protocol\DataPacket;
+use pocketmine\network\mcpe\protocol\TextPacket;
 use proxy\plugin\Plugin;
 use proxy\utils\Log;
 
@@ -19,15 +20,25 @@ class Main extends Plugin{
 
 	/**
 	 * @param DataPacket $packet
+	 * @return bool
 	 */
-	public function handleServerDataPacket(DataPacket $packet) : void{
-		Log::Success(get_class($packet));
+	public function handleServerDataPacket(DataPacket $packet) : bool{
+		return true;
 	}
 
 	/**
 	 * @param DataPacket $packet
+	 * @return bool
 	 */
-	public function handleClientDataPacket(DataPacket $packet) : void{
-		Log::Error(get_class($packet));
+	public function handleClientDataPacket(DataPacket $packet) : bool{
+		if($packet instanceof TextPacket){
+			$packet->decode();
+			//way to create chat commands
+			if($packet->message === ".test"){
+				$this->proxy->getClient()->sendMessage("example message");
+				return false; //to cancel packet
+			}
+		}
+		return true;
 	}
 }

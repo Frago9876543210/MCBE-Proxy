@@ -15,7 +15,7 @@ use proxy\hosts\{
 	BaseHost, Client, Server
 };
 use raklib\protocol\{
-	OpenConnectionRequest1, UnconnectedPing, UnconnectedPong
+	ACK, OpenConnectionRequest1, UnconnectedPing, UnconnectedPong
 };
 
 class Proxy{
@@ -28,6 +28,14 @@ class Proxy{
 	/** @var Plugin[] $plugins */
 	private $plugins = [];
 
+	/**
+	 * Proxy constructor.
+	 * @param string $serverAddress
+	 * @param int    $serverPort
+	 * @param string $interface
+	 * @param int    $bindPort
+	 * @param bool   $withoutPlugins
+	 */
 	public function __construct(string $serverAddress, int $serverPort = 19132, string $interface = "0.0.0.0", int $bindPort = 19132, $withoutPlugins = false){
 		Terminal::init();
 		PacketPool::init();
@@ -72,26 +80,40 @@ class Proxy{
 					}
 				}else{
 					if($this->server->address->equals($internetAddress)){
-						$this->decodeBuffer($buffer, $this->server);
-						$this->sendToClient($buffer);
+						if($this->decodeBuffer($buffer, $this->server)){
+							$this->sendToClient($buffer);
+						}
 					}else{
-						$this->decodeBuffer($buffer, $this->client);
-						$this->sendToServer($buffer);
+						if($this->decodeBuffer($buffer, $this->client)){
+							$this->sendToServer($buffer);
+						}
 					}
 				}
 			}
 		}
 	}
 
-	private function decodeBuffer(string $buffer, BaseHost $host){
+	/**
+	 * @param string   $buffer
+	 * @param BaseHost $host
+	 * @return bool
+	 */
+	private function decodeBuffer(string $buffer, BaseHost $host) : bool{
 		if(($packet = Packet::readDataPacket($buffer)) !== null){
 			$host->handleDataPacket($packet);
 			if(!empty($this->plugins)){
 				foreach($this->plugins as $plugin){
-					$host instanceof Client ? $plugin->handleClientDataPacket($packet) : $plugin->handleServerDataPacket($packet);
+					if(!($host instanceof Client ? $plugin->handleClientDataPacket($packet) : $plugin->handleServerDataPacket($packet))){
+						$ack = new ACK;
+						$ack->packets[] = Packet::$storage[$packet];
+						$ack->encode();
+						$host->writePacket($ack->buffer);
+						return false;
+					}
 				}
 			}
 		}
+		return true;
 	}
 
 	/**

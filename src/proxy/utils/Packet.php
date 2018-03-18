@@ -21,6 +21,8 @@ class Packet{
 	private static $splitPackets = [];
 	/** @var \SplObjectStorage $storage */
 	public static $storage;
+	/** @var array $cancelQueue */
+	public static $cancelQueue = [];
 
 	public static function init(){
 		self::$storage = new \SplObjectStorage;
