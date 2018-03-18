@@ -31,6 +31,7 @@ class Proxy{
 	public function __construct(string $serverAddress, int $serverPort = 19132, string $interface = "0.0.0.0", int $bindPort = 19132, $withoutPlugins = false){
 		Terminal::init();
 		PacketPool::init();
+		Packet::init();
 
 		if($serverPort !== $bindPort){
 			Log::Warn("The proxy port is different from the server port. If there is a port check on the server, then you can not join it.");
@@ -71,11 +72,11 @@ class Proxy{
 					}
 				}else{
 					if($this->server->address->equals($internetAddress)){
-						$this->sendToClient($buffer);
 						$this->decodeBuffer($buffer, $this->server);
+						$this->sendToClient($buffer);
 					}else{
-						$this->sendToServer($buffer);
 						$this->decodeBuffer($buffer, $this->client);
+						$this->sendToServer($buffer);
 					}
 				}
 			}

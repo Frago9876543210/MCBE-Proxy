@@ -17,8 +17,14 @@ use raklib\server\Session;
 class Packet{
 	/** @var int $number */
 	private static $number = 0;
-	/** @var Datagram[][] */
+	/** @var Datagram[][] $splitPackets */
 	private static $splitPackets = [];
+	/** @var \SplObjectStorage $storage */
+	public static $storage;
+
+	public static function init(){
+		self::$storage = new \SplObjectStorage;
+	}
 
 	/**
 	 * @param string $buffer
@@ -42,7 +48,10 @@ class Packet{
 								$packet = $split;
 							}
 						}
-						return self::decodeBatch($packet);
+						if(($pk = self::decodeBatch($packet)) !== null){
+							self::$storage[$pk] = $datagram->seqNumber;
+							return $pk;
+						}
 					}
 				}
 			}
