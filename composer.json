@@ -23,9 +23,10 @@
 	"ext-zlib": ">=1.2.11",
 	"pocketmine/pocketmine-mp": "dev-master",
 	"pocketmine/raklib": "dev-master",
-	"pocketmine/pocketmine-spl": "^0.2.0",
-	"pocketmine/pocketmine-binaryutils": "dev-master",
-	"pocketmine/pocketmine-nbt": "dev-master"
+	"pocketmine/spl": "dev-master",
+	"pocketmine/binaryutils": "dev-master",
+	"pocketmine/nbt": "dev-master",
+	"pocketmine/math": "dev-master"
   },
   "autoload": {
 	"psr-4": {
@@ -46,15 +47,19 @@
 	},
 	{
 	  "type": "vcs",
-	  "url": "https://github.com/pmmp/PocketMine-SPL"
+	  "url": "https://github.com/pmmp/SPL"
 	},
 	{
 	  "type": "vcs",
-	  "url": "https://github.com/pmmp/PocketMine-BinaryUtils"
+	  "url": "https://github.com/pmmp/BinaryUtils"
 	},
 	{
 	  "type": "vcs",
-	  "url": "https://github.com/pmmp/PocketMine-NBT"
+	  "url": "https://github.com/pmmp/NBT"
+	},
+	{
+	  "type": "vcs",
+	  "url": "https://github.com/pmmp/Math"
 	}
   ]
 }

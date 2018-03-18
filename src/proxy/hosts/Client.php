@@ -21,8 +21,6 @@ class Client extends BaseHost{
 	public $yaw;
 	/** @var float $pitch */
 	public $pitch;
-	/** @var int $gamemode */
-	public $gamemode;
 
 	public function __construct(Proxy $proxy, ?Address $address){
 		parent::__construct($proxy, $address);
